@@ -1,43 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConsoleApp12
 {
-    class Program
+    public class Program
     {
+        private readonly DataContext context;
+        private readonly Guid anasId;
+
+        public Program()
+        {
+            this.context = new DataContext();
+            this.anasId = Guid.Parse("8c9b0b48-ebf1-4ae1-b454-e78c74f489c0");
+        }
+
+        [Benchmark]
+        public async Task<object> WithTaskAsync() =>
+           await this.context.Students.FindAsync(this.anasId);
+
+        [Benchmark]
+        public async ValueTask<object> WithValueTaskAsync() =>
+            await this.context.Students.FindAsync(this.anasId);
+
         static void Main(string[] args)
         {
-            Guid studentId = Guid.NewGuid();
-            Guid teacherId = Guid.NewGuid();
-
-            var student = new Student
-            {
-                Id = studentId,
-                Name = "Anas",
-                StudentTeachers = new List<StudentTeacher>
-                {
-                    new StudentTeacher
-                    {
-                        StudentId = studentId,
-                        TeacherId = teacherId,
-                        Teacher = new Teacher
-                        {
-                            Id = teacherId,
-                            Name = "Hassan"
-                        }
-                    }
-                }
-            };
-
-            var dbContext = new DataContext();
-            dbContext.Students.Add(student);
-            dbContext.SaveChanges();
-
-            Student storageStudent = 
-                dbContext.Students.Find(studentId);
-
-            Console.WriteLine(storageStudent.Name);
+            var summary =
+                BenchmarkRunner.Run(typeof(Program).Assembly);
         }
     }
 
