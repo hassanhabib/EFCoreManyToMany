@@ -57,7 +57,7 @@ namespace ConsoleApp12
 
             modelBuilder.Entity<StudentTeacher>()
                 .HasOne(studentTeacher => studentTeacher.Student)
-                .WithMany(teacher => teacher.StudentTeachers)
+                .WithMany(student => student.StudentTeachers)
                 .HasForeignKey(studentTeacher => studentTeacher.StudentId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
